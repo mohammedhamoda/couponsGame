@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Catch the Items — Demo</title>
+  <style>
+    body{ margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#f2f2f2}
+    #gameWrap{ width:100%; max-width:420px; margin:20px auto; position:relative }
+    canvas{ width:100%; height:auto; background:#fff; display:block; box-shadow:0 6px 18px rgba(0,0,0,0.12); border-radius:8px }
+    #overlay{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); color:#fff; font-size:18px; gap:12px; flex-direction:column; visibility:hidden; border-radius:8px }
+    .btn{ padding:10px 14px; border-radius:8px; border:none; cursor:pointer }
+    .btn-primary{ background:#2d8fdd; color:#fff }
+    .small{ font-size:13px }
+    #info{ max-width:420px; margin:10px auto; text-align:center }
+  </style>
+</head>
+<body>
+  <div id="gameWrap">
+    <canvas id="canvas" width="400" height="600"></canvas>
+    <div id="overlay"></div>
+  </div>
+  <div id="info">
+    <div id="points">Points: 0</div>
+    <div class="small">Move bin with touch/drag or left/right arrow keys.</div>
+  </div>
+
+<script>
+/*
+  Simple falling-items game.
+  - Drop your images in public/images:
+    item1.png ... item5.png and bin.png
+  - Server endpoints (server/server.js):
+    GET  /can-play?deviceId=...
+    POST /record-play   { deviceId }
+    POST /claim-coupon  { deviceId }
+    GET  /verify-coupon?code=...
+
+  Open the server (node server/server.js) to test.
+*/
+
+// ====== CONFIG ======
+const MAX_POINTS = 20; // win condition
+const IMAGES_PATH = 'images/'; // public/images folder
+const itemFiles = ['item1.png','item2.png','item3.png','item4.png','item5.png'];
+const binFile = 'bin.png';
+const SERVER_BASE = ''; // same origin (served from server)
+
+// ====== SETUP ======
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const overlay = document.getElementById('overlay');
+const pointsEl = document.getElementById('points');
+let W = canvas.width, H = canvas.height;
+
+// device id (very simple): stored in localStorage and used by server to identify device
+let deviceId = localStorage.getItem('deviceId');
+if(!deviceId){ deviceId = uuidv4(); localStorage.setItem('deviceId', deviceId); }
+
+// load images
+const binImg = new Image(); binImg.src = IMAGES_PATH + binFile;
+const itemImgs = itemFiles.map(f => { const i = new Image(); i.src = IMAGES_PATH + f; return i; });
+
+// game state
+let bin = { x: (W-80)/2, y: H - 70, width: 80, height: 60, speed: 6 };
+let items = [];
+let points = 0;
+let itemSpeed = 4.0; // base speed
+let spawnInterval = 1400; // ms
+let gameOver = false;
+let spawnTimer = null;
+
+// ====== NETWORK: check if device can play today ======
+async function checkCanPlay(){
+  try{
+    const res = await fetch(`${SERVER_BASE}/can-play?deviceId=${encodeURIComponent(deviceId)}`);
+    if(!res.ok) return {canPlay:true};
+    const j = await res.json();
+    return j;
+  }catch(e){ return {canPlay:true}; /* server unreachable => allow (client fallback) */ }
+}
+
+// call server to claim coupon (on win)
+async function claimCoupon(){
+  try{
+    const res = await fetch(`${SERVER_BASE}/claim-coupon`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ deviceId })
+    });
+    const j = await res.json();
+    if(j.ok){ showOverlay(`You win! Coupon: ${j.coupon}`); }
+    else showOverlay(j.error || 'No coupon: ' + (j.message||'unknown'));
+  }catch(e){ showOverlay('Cannot contact server. Try later.'); }
+}
+
+// tell server this device played (on lose we call this)
+async function recordPlay(){
+  try{ await fetch(`${SERVER_BASE}/record-play`,{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({ deviceId })}); }
+  catch(e){}
+}
+
+// ====== GAME FUNCTIONS ======
+function spawnItem(){
+  const w = 36, h = 36;
+  const imgIndex = Math.floor(Math.random() * itemImgs.length);
+  items.push({ x: Math.random() * (W - w), y: -h - 10, width: w, height: h, imgIndex });
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  // bin
+  ctx.drawImage(binImg, bin.x, bin.y, bin.width, bin.height);
+  // items
+  for(let it of items){
+    const img = itemImgs[it.imgIndex];
+    if(img.complete) ctx.drawImage(img, it.x, it.y, it.width, it.height);
+    else { ctx.fillStyle='#ddd'; ctx.fillRect(it.x,it.y,it.width,it.height); }
+  }
+}
+
+function update(){
+  for(let i=items.length-1;i>=0;i--){
+    items[i].y += itemSpeed;
+    // collision with bin?
+    const it = items[i];
+    if(it.y + it.height >= bin.y && it.x < bin.x + bin.width && it.x + it.width > bin.x){
+      // caught
+      items.splice(i,1);
+      points += 1;
+      itemSpeed += 1.0; // increase speed each point
+      pointsEl.textContent = 'Points: ' + points;
+      if(points >= MAX_POINTS){
+        gameOver = true;
+        // when winning we call claimCoupon (server will also record play)
+        claimCoupon();
+        stopSpawning();
+      }
+    } else if(it.y > H){
+      // missed -> lose
+      gameOver = true;
+      stopSpawning();
+      recordPlay();
+      showOverlay('You missed one — you lose.');
+    }
+  }
+}
+
+function loop(){
+  if(gameOver) return;
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+function startSpawning(){ spawnTimer = setInterval(spawnItem, spawnInterval); }
+function stopSpawning(){ if(spawnTimer) clearInterval(spawnTimer); spawnTimer = null; }
+
+function resetGame(){
+  items = []; points = 0; itemSpeed = 2; gameOver = false; pointsEl.textContent = 'Points: 0'; overlay.style.visibility='hidden';
+  bin.x = (W - bin.width)/2;
+  startSpawning(); loop();
+}
+
+function showOverlay(html){ overlay.innerHTML = `<div style="text-align:center">${html}<div style="margin-top:12px"><button class="btn btn-primary" onclick="resetGame()">Play again</button></div></div>`; overlay.style.visibility='visible'; }
+
+// ====== INPUT ======
+let dragging = false; let dragStartX = 0; let binStartX = 0;
+canvas.addEventListener('pointerdown', e=>{ dragging = true; dragStartX = e.clientX; binStartX = bin.x; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', e=>{ if(!dragging) return; const dx = (e.clientX - dragStartX) * (canvas.width / canvas.getBoundingClientRect().width); bin.x = Math.max(0, Math.min(W - bin.width, binStartX + dx)); });
+canvas.addEventListener('pointerup', e=>{ dragging = false; });
+
+window.addEventListener('keydown', e=>{ if(gameOver) return; if(e.key === 'ArrowLeft') bin.x = Math.max(0, bin.x - bin.speed); if(e.key === 'ArrowRight') bin.x = Math.min(W - bin.width, bin.x + bin.speed); });
+
+// handle resize (canvas is fixed to internal resolution; CSS scales it)
+window.addEventListener('resize', ()=>{ const rect = canvas.getBoundingClientRect(); });
+
+// ====== UTIL ======
+function uuidv4(){ return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; const v = c=='x' ? r : (r & 0x3 | 0x8); return v.toString(16); }); }
+
+// ====== BOOT ======
+(async function boot(){
+  const can = await checkCanPlay();
+  if(!can.canPlay){ showOverlay(can.reason || 'Already played today'); return; }
+
+  // wait image load a little (not strict)
+  setTimeout(()=>{
+    draw(); startSpawning(); loop();
+  }, 300);
+})();
+
+</script>
+</body>
+</html>
