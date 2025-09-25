@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Redeem Coupon</title>
+</head>
+<body>
+  <h2>Redeem Coupon</h2>
+  <input id="code" placeholder="Enter coupon code"><br><br>
+  <input id="staff" placeholder="Staff ID (optional)"><br><br>
+  <button onclick="verify()">Verify</button>
+  <button onclick="redeem()">Redeem</button>
+  <pre id="out"></pre>
+
+<script>
+async function verify(){
+  const code = document.getElementById('code').value.trim();
+  const res = await fetch('/verify-coupon?code=' + code);
+  const data = await res.json();
+  document.getElementById('out').textContent = JSON.stringify(data, null, 2);
+}
+
+async function redeem(){
+  const code = document.getElementById('code').value.trim();
+  const staff = document.getElementById('staff').value.trim();
+  const res = await fetch('/redeem-coupon', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json' },
+    body: JSON.stringify({ code, staffId: staff })
+  });
+  const data = await res.json();
+  document.getElementById('out').textContent = JSON.stringify(data, null, 2);
+}
+</script>
+</body>
+</html>
