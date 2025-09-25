@@ -7,7 +7,8 @@
         width:100%; 
         max-width:420px; 
         margin:20px auto; 
-        position:relative 
+        position:relative;
+        margin-bottom: 0;
     }
     canvas{ 
         width:100%; 
@@ -15,7 +16,7 @@
         background:#626262; 
         display:block; 
         box-shadow:0 6px 18px rgba(0,0,0,0.12); 
-        border-radius:8px 
+        border-radius:8px;
     }
     #overlay{ 
         position:absolute; 
@@ -29,7 +30,8 @@
         gap:12px; 
         flex-direction:column; 
         visibility:hidden; 
-        border-radius:8px 
+        border-radius:8px ;
+        
     }
     .btn{ 
         padding:10px 14px; 
@@ -48,4 +50,14 @@
         max-width:420px; 
         margin:10px auto; 
         text-align:center 
+    }
+    #points{
+        background-color: rgb(6, 160, 47);
+        margin: 0;
+        padding: 17px;
+        width: fit-content;
+        border-radius: 10px;
+        filter: drop-shadow(1px 1px 5px rgb(6, 140, 89));
+        color: #eeeeee;
+
     }
