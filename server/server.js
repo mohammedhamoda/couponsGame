@@ -66,38 +66,39 @@ app.post('/claim-coupon', (req,res) => {
 // verify coupon (used by cafe/restaurant)
 app.get('/verify-coupon', (req,res) => {
   const code = req.query.code;
-  if(!code) return res.status(400).json({ ok:false, error:'code_required' });
+  if(!code) return res.json({ ok:false, message:'Please enter a code' });
+
   const coupons = readJSON(COUPONS_FILE, []);
   const c = coupons.find(x => x.code === code);
-  if(!c) return res.json({ ok:true, valid:false, reason:'not_found' });
-  
-  res.json({
-    ok:true,
-    valid: !!c.claimed,
-    redeemed: !!c.redeemed,
-    coupon: c
-  });
+
+  if(!c) return res.json({ ok:false, message:'Coupon not found' });
+  if(!c.claimed) return res.json({ ok:false, message:'Coupon not yet claimed' });
+  if(c.redeemed) return res.json({ ok:false, message:'Coupon already redeemed' });
+
+  res.json({ ok:true, message:'Coupon is valid and can be redeemed' });
 });
 
 // redeem coupon (crew side)
 app.post('/redeem-coupon', (req,res) => {
-  const { code, staffId } = req.body;
-  if(!code) return res.status(400).json({ ok:false, error:'code_required' });
+    const { code, crewName } = req.body;
+  if(!code) return res.json({ ok:false, message:'Code required' });
 
   const coupons = readJSON(COUPONS_FILE, []);
-  const c = coupons.find(x => x.code === code);
-  if(!c) return res.json({ ok:false, error:'not_found' });
+  const idx = coupons.findIndex(x => x.code === code);
+  if(idx === -1) return res.json({ ok:false, message:'Coupon not found' });
 
-  if(!c.claimed) return res.json({ ok:false, error:'not_claimed' });
-  if(c.redeemed) return res.json({ ok:false, error:'already_redeemed', redeemedAt: c.redeemedAt });
+  const c = coupons[idx];
+  if(!c.claimed) return res.json({ ok:false, message:'Coupon not yet claimed' });
+  if(c.redeemed) return res.json({ ok:false, message:'Coupon already redeemed' });
 
+  // mark as redeemed
   c.redeemed = true;
-  c.redeemedBy = staffId || 'unknown';
-  c.redeemedAt = new Date().toISOString();
-
+  c.redeemedBy = crewName || 'staff';
+  c.redeemedAt = (new Date()).toISOString();
+  coupons[idx] = c;
   writeJSON(COUPONS_FILE, coupons);
 
-  res.json({ ok:true, message:'redeemed', coupon:c });
+  res.json({ ok:true, message:'Redeemed successfully!' });
 });
 
 app.listen(PORT, ()=> console.log('Server running on port', PORT));
