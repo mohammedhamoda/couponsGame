@@ -64,7 +64,7 @@ app.post('/claim-coupon', (req,res) => {
 });
 
 // verify coupon (used by cafe/restaurant)
-app.get('/verify-coupon', (req,res) => {
+app.get('/redeem/verify-coupon', (req,res) => {
   const code = req.query.code;
   if(!code) return res.json({ ok:false, message:'Please enter a code' });
 
@@ -79,7 +79,7 @@ app.get('/verify-coupon', (req,res) => {
 });
 
 // redeem coupon (crew side)
-app.post('/redeem-coupon', (req,res) => {
+app.post('/redeem/redeem-coupon', (req,res) => {
     const { code, crewName } = req.body;
   if(!code) return res.json({ ok:false, message:'Code required' });
 
