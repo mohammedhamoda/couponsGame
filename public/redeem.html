@@ -19,14 +19,14 @@
   <script>
     async function verify(){
       const code = document.getElementById('code').value;
-      const res = await fetch(`/crew/verify-coupon?code=${code}`);
+      const res = await fetch(`/redeem/verify-coupon?code=${code}`);
       const data = await res.json();
       document.getElementById('result').innerText = data.message;
     }
 
     async function redeem(){
       const code = document.getElementById('code').value;
-      const res = await fetch('/crew/redeem-coupon', {
+      const res = await fetch('/redeem/redeem-coupon', {
         method:'POST',
         headers:{ 'Content-Type':'application/json' },
         body: JSON.stringify({ code })
