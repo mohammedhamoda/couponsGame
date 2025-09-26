@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Catch the Items — Demo</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@100..900&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="gameWrap">
@@ -13,7 +16,7 @@
   </div>
   <div id="info">
     <center>
-    <div id="points">Points: 0</div>
+    <div id="points">سكورك : 0</div>
     </center>
     <!-- <div class="small">Move bin with touch/drag or left/right arrow keys.</div> -->
   </div>
@@ -33,7 +36,7 @@
 */
 
 // ====== CONFIG ======
-const MAX_POINTS = 20; // win condition
+const MAX_POINTS = 100; // win condition
 const IMAGES_PATH = 'images/'; // public/images folder
 const itemFiles = ['item1.png','item2.png','item3.png','item4.png','item5.png'];
 const binFile = 'bin.png';
@@ -59,7 +62,7 @@ let bin = { x: (W-80)/2, y: H - 70, width: 80, height: 60, speed: 6 };
 let items = [];
 let points = 0;
 let itemSpeed = 4.0; // base speed
-let spawnInterval = 1400; // ms
+let spawnInterval = 1000; // ms
 let gameOver = false;
 let spawnTimer = null;
 
@@ -96,8 +99,25 @@ async function recordPlay(){
 function spawnItem(){
   const w = 36, h = 36;
   const imgIndex = Math.floor(Math.random() * itemImgs.length);
-  items.push({ x: Math.random() * (W - w), y: -h - 10, width: w, height: h, imgIndex });
+  items.push({
+    x: Math.random() * (W - w),
+    y: -h - 10,
+    width: w,
+    height: h,
+    imgIndex
+  });
 }
+
+function spawnItems(){
+  let count = Math.min(3, 1 + Math.floor(points / 5)); // max 3 items
+
+  for (let i = 0; i < count; i++) {
+    let gap = Math.max(200, 500 - points * 10); 
+    setTimeout(() => spawnItem(), i * gap);
+
+  }
+}
+
 
 function draw(){
   ctx.clearRect(0,0,W,H);
@@ -120,8 +140,10 @@ function update(){
       // caught
       items.splice(i,1);
       points += 1;
-      itemSpeed += 1.0; // increase speed each point
-      pointsEl.textContent = 'Points: ' + points;
+      itemSpeed += .4; // increase speed each point
+
+
+      pointsEl.textContent = 'سكورك : ' + points;
       if(points >= MAX_POINTS){
         gameOver = true;
         // when winning we call claimCoupon (server will also record play)
@@ -145,16 +167,17 @@ function loop(){
   requestAnimationFrame(loop);
 }
 
-function startSpawning(){ spawnTimer = setInterval(spawnItem, spawnInterval); }
+function startSpawning(){ spawnTimer = setInterval(spawnItems, spawnInterval); }
+
 function stopSpawning(){ if(spawnTimer) clearInterval(spawnTimer); spawnTimer = null; }
 
 function resetGame(){
-  items = []; points = 0; itemSpeed = 2; gameOver = false; pointsEl.textContent = 'Points: 0'; overlay.style.visibility='hidden';
+  items = []; points = 0; itemSpeed = 4; gameOver = false; pointsEl.textContent = 'سكورك : 0'; overlay.style.visibility='hidden';
   bin.x = (W - bin.width)/2;
   startSpawning(); loop();
 }
 
-function showOverlay(html){ overlay.innerHTML = `<div style="text-align:center">${html}<div style="margin-top:12px"><button class="btn btn-primary" onclick="resetGame()">Play again</button></div></div>`; overlay.style.visibility='visible'; }
+function showOverlay(html){ overlay.innerHTML = `<div style="text-align:center">${html}</div><div style="margin-top:12px"><button class="btn btn-primary" onclick="resetGame()">Play again</button></div>`; overlay.style.visibility='visible'; }
 
 // ====== INPUT ======
 let dragging = false;
