@@ -39,21 +39,33 @@ app.post('/record-play', (req,res) => {
 });
 
 // claim a coupon (called on win). This will also mark the device as played today.
+// claim a coupon (called on win). This will also mark the device as played today.
 app.post('/claim-coupon', (req,res) => {
-  const { deviceId } = req.body;
+  const { deviceId, score } = req.body;
   if(!deviceId) return res.status(400).json({ ok:false, error:'deviceId_required' });
+  if(typeof score !== "number") return res.status(400).json({ ok:false, error:'score_required' });
 
   const plays = readJSON(PLAYS_FILE, {});
-  if(plays[deviceId] === todayString()) return res.json({ ok:false, error:'already_played_today' });
+  if(plays[deviceId] === todayString()) {
+    return res.json({ ok:false, error:'already_played_today' });
+  }
 
   const coupons = readJSON(COUPONS_FILE, []);
-  const idx = coupons.findIndex(c => !c.claimed);
-  if(idx === -1) return res.json({ ok:false, error:'no_coupons_left' });
+
+  // find a coupon that is unclaimed AND matches score range
+  const idx = coupons.findIndex(c => 
+    !c.claimed &&
+    (c.minScore === undefined || score >= c.minScore) &&
+    (c.maxScore === undefined || score <= c.maxScore)
+  );
+
+  if(idx === -1) return res.json({ ok:false, error:'no_coupon_for_score' });
 
   // claim
   coupons[idx].claimed = true;
   coupons[idx].claimedBy = deviceId;
   coupons[idx].claimedAt = (new Date()).toISOString();
+  coupons[idx].scoreWhenClaimed = score;
 
   plays[deviceId] = todayString();
 
@@ -62,6 +74,7 @@ app.post('/claim-coupon', (req,res) => {
 
   res.json({ ok:true, coupon: coupons[idx].code });
 });
+
 
 // verify coupon (used by cafe/restaurant)
 app.get('/redeem/verify-coupon', (req,res) => {

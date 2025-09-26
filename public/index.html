@@ -77,17 +77,25 @@ async function checkCanPlay(){
 }
 
 // call server to claim coupon (on win)
-async function claimCoupon(){
-  try{
-    const res = await fetch(`${SERVER_BASE}/claim-coupon`,{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ deviceId })
+// call server to claim coupon (on win)
+async function claimCoupon(score){
+  try {
+    const res = await fetch(`${SERVER_BASE}/claim-coupon`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceId, score }) // send score too
     });
     const j = await res.json();
-    if(j.ok){ showOverlay(`You win! Coupon: ${j.coupon}`); }
-    else showOverlay(j.error || 'No coupon: ' + (j.message||'unknown'));
-  }catch(e){ showOverlay('Cannot contact server. Try later.'); }
+    if (j.ok) {
+      showOverlay(`You win! Coupon: ${j.coupon}`);
+    } else {
+      showOverlay(j.error || 'No coupon: ' + (j.message || 'unknown'));
+    }
+  } catch (e) {
+    showOverlay('Cannot contact server. Try later.');
+  }
 }
+
 
 // tell server this device played (on lose we call this)
 async function recordPlay(){
@@ -144,19 +152,25 @@ function update(){
 
 
       pointsEl.textContent = 'سكورك : ' + points;
-      if(points >= MAX_POINTS){
+      if (points >= MAX_POINTS) {
         gameOver = true;
-        // when winning we call claimCoupon (server will also record play)
-        claimCoupon();
         stopSpawning();
+        claimCoupon(points); // server handles tier
       }
-    } else if(it.y > H){
-      // missed -> lose
-      gameOver = true;
-      stopSpawning();
-      recordPlay();
-      showOverlay('You missed one — you lose.');
-    }
+
+
+    } else if (it.y > H) {
+        // missed -> lose
+        gameOver = true;
+        stopSpawning();
+
+        // instead of only recording play, also try to claim coupon with the score
+        claimCoupon(points);  // server will return coupon if score fits a tier
+        // recordPlay();  <-- you don’t need this anymore, server marks play inside claim-coupon
+
+        showOverlay('Game over! Your score: ' + points);
+      }
+
   }
 }
 
