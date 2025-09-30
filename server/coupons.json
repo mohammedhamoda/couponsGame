@@ -1,22 +1,29 @@
 [
   {
     "code": "DISC10",
+    "gameId": "memoryFlip",
     "minScore": 0,
     "maxScore": 9,
     "claimed": true,
     "claimedBy": "bb96d20c-0fff-4c5c-8619-8789ceb1cc7e",
-    "claimedAt": "2025-09-26T20:30:53.841Z",
-    "scoreWhenClaimed": 1
+    "claimedAt": "2025-09-27T23:54:09.628Z",
+    "scoreWhenClaimed": 6
   },
   {
     "code": "SALE20",
+    "gameId": "memoryFlip",
     "minScore": 10,
     "maxScore": 14,
-    "claimed": false
+    "claimed": true,
+    "claimedBy": "bb96d20c-0fff-4c5c-8619-8789ceb1cc7e",
+    "claimedAt": "2025-09-27T23:49:54.813Z",
+    "scoreWhenClaimed": 13
   },
   {
     "code": "VIP100",
-    "minScore": 15,
+    "gameId": "fallingItems",
+    "minScore": 20,
+    "maxScore": 50,
     "claimed": false
   }
 ]

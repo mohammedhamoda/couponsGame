@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Quiz Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="startScreen" class="screen active">
+    <h1>اختر الفئة</h1>
+    <div id="categories"></div>
+  </div>
+
+  <div id="quizScreen" class="screen">
+    <div id="questionBox" ></div>
+    <div id="optionsBox"></div>
+    <div id="progress" style="margin-top:12px;"></div>
+  </div>
+  <center>
+  <div id="scoreBox">سكورك : 0</div>
+  </center>
+  <div id="endScreen" class="screen">
+    <h2 id="finalScore"></h2>
+    <div id="couponResult" style="margin-top:10px; font-weight:700;"></div>
+    <div style="margin-top:12px">
+      <button type="button" onclick="restart()">إلعب مرة أخرى</button>
+    </div>
+  </div>
+
+<script>
+/* ====== CONFIG ====== */
+const GAME_ID = "quizGame";
+const SERVER_BASE = ""; // same origin
+const MAX_QUESTIONS = 10;
+const CATEGORIES = ["science","history","sports"]; // file names: questions_science.json etc
+
+/* ====== STATE ====== */
+let deviceId = localStorage.getItem('deviceId');
+if(!deviceId){ deviceId = uuidv4(); localStorage.setItem('deviceId', deviceId); }
+
+let canClaim = true;
+let currentCategory = null;
+let questions = [];
+let currentIndex = 0;
+let score = 0;
+
+/* ====== NETWORK HELPERS ====== */
+async function checkCanPlay(){
+  try {
+    const res = await fetch(`${SERVER_BASE}/can-play?deviceId=${encodeURIComponent(deviceId)}&gameId=${encodeURIComponent(GAME_ID)}`);
+    if(!res.ok) return { canPlay: true };
+    const j = await res.json();
+    if(j && j.canPlay === false) canClaim = false;
+    return j;
+  } catch(e){ return { canPlay: true }; }
+}
+
+async function recordPlay(){
+  try{
+    await fetch(`${SERVER_BASE}/record-play`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ deviceId, gameId: GAME_ID })
+    });
+  }catch(e){}
+}
+
+async function claimCoupon(finalScore){
+  try {
+    const res = await fetch(`${SERVER_BASE}/claim-coupon`, {
+      method:'POST',
+      headers:{ 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceId, score: finalScore, gameId: GAME_ID })
+    });
+    const j = await res.json();
+    if(j.ok){
+      document.getElementById('couponResult').textContent = `🎉 كوبونك: ${j.coupon}`;
+    } else {
+      // server uses j.error or j.message
+      document.getElementById('couponResult').textContent = j.error || j.message || 'لا يوجد كوبون متاح';
+    }
+  } catch(e){
+    document.getElementById('couponResult').textContent = 'تعذر الاتصال بالخادم.';
+  }
+}
+
+/* ====== UI FLOW ====== */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=> s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function updateScoreDisplay(){ document.getElementById('scoreBox').textContent = 'سكورك : ' + score; }
+
+async function loadCategories(){
+  const box = document.getElementById('categories');
+  box.innerHTML = '';
+  CATEGORIES.forEach(cat=>{
+    const btn = document.createElement('button');
+    btn.setAttribute('type','button');
+    btn.className = 'option';
+    btn.textContent = cat; // keep filename-friendly names; replace with labels if you want Arabic names
+    btn.onclick = ()=> startCategory(cat);
+    box.appendChild(btn);
+  });
+  showScreen('startScreen');
+}
+
+async function startCategory(cat){
+  currentCategory = cat;
+  try {
+    const res = await fetch(`questions_${cat}.json`);
+    const all = await res.json();
+    questions = shuffle(all).slice(0, MAX_QUESTIONS);
+  } catch(e){
+    questions = [];
+  }
+  score = 0;
+  currentIndex = 0;
+  updateScoreDisplay();
+
+  await checkCanPlay();    // sets canClaim flag
+  await recordPlay();      // mark played today (frontend optimistic)
+
+  showScreen('quizScreen');
+  showQuestion();
+}
+
+function showQuestion(){
+  const qObj = questions[currentIndex];
+  if(!qObj){
+    endGame();
+    return;
+  }
+
+  document.getElementById('questionBox').textContent = qObj.q;
+  const optBox = document.getElementById('optionsBox');
+  optBox.innerHTML = '';
+
+  // build an array of {text, isCorrect}
+  let opts = qObj.options.map((opt, idx) => ({
+    text: opt,
+    isCorrect: idx === qObj.answer
+  }));
+
+  // shuffle them
+  opts = shuffle(opts);
+
+  // render shuffled buttons
+  opts.forEach((optObj) => {
+    const btn = document.createElement('button');
+    btn.setAttribute('type','button');
+    btn.className = 'option';
+    btn.textContent = optObj.text;
+    btn.onclick = () => chooseAnswer(optObj.isCorrect, btn);
+    optBox.appendChild(btn);
+  });
+
+  document.getElementById('progress').textContent =
+    `سؤال ${currentIndex+1} من ${MAX_QUESTIONS}`;
+}
+
+function chooseAnswer(isCorrect, clickedBtn){
+  const optBtns = Array.from(document.querySelectorAll('#optionsBox .option'));
+
+  optBtns.forEach((b) => {
+    if(b === clickedBtn && !isCorrect) b.classList.add('wrong');
+    if(isCorrect && b === clickedBtn) b.classList.add('correct');
+    // mark the actual correct one too
+    if(!isCorrect && b.textContent === questions[currentIndex].options[questions[currentIndex].answer]){
+      b.classList.add('correct');
+    }
+    b.disabled = true;
+  });
+
+  if(isCorrect){
+    score++;
+    updateScoreDisplay();
+  }
+
+  setTimeout(() => { nextQuestion(); }, 800);
+}
+
+
+function nextQuestion(){
+  currentIndex++;
+  if(currentIndex >= MAX_QUESTIONS) {
+    endGame();
+  } else {
+    showQuestion();
+  }
+}
+
+function endGame(){
+  showScreen('endScreen');
+  document.getElementById('finalScore').textContent = `نتيجتك: ${score}/${MAX_QUESTIONS}`;
+  // only attempt claim if canClaim (canClaim set earlier by checkCanPlay)
+  if(canClaim){
+    claimCoupon(score);
+  } else {
+    document.getElementById('couponResult').textContent = 'لقد لعبت بالفعل اليوم — لا يمكن منح كوبون.';
+  }
+}
+
+function restart(){
+  loadCategories();
+}
+
+/* ====== UTILS ====== */
+function shuffle(arr){
+  return arr
+    .map(a=> ({sort: Math.random(), value: a}))
+    .sort((a,b)=> a.sort - b.sort)
+    .map(x => x.value);
+}
+function uuidv4(){ return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{ const r = Math.random()*16|0; const v = c=='x'? r : (r&0x3|0x8); return v.toString(16); }); }
+
+/* ====== BOOT ====== */
+loadCategories();
+</script>
+</body>
+</html>

@@ -18,63 +18,73 @@ function writeJSON(file, obj){ fs.writeFileSync(file, JSON.stringify(obj, null, 
 
 function todayString(){ return new Date().toDateString(); }
 
-// can-play check
+// can-play check (per game)
 app.get('/can-play', (req,res) => {
-  const deviceId = req.query.deviceId;
+  const { deviceId } = req.query;
   if(!deviceId) return res.json({ canPlay: true });
+
   const plays = readJSON(PLAYS_FILE, {});
-  const last = plays[deviceId];
-  if(last === todayString()) return res.json({ canPlay: false, reason: 'already_played_today' });
+  const key = `${deviceId}`;
+  const last = plays[key];
+
+  if(last === todayString()) {
+    return res.json({ canPlay: false, reason: 'already_played_today' });
+  }
   res.json({ canPlay: true });
 });
 
-// record that the device played (called by client when they lose)
+// record that the device played
 app.post('/record-play', (req,res) => {
   const { deviceId } = req.body;
   if(!deviceId) return res.status(400).json({ ok:false, error:'deviceId_required' });
+
   const plays = readJSON(PLAYS_FILE, {});
-  plays[deviceId] = todayString();
+  const key = `${deviceId}`;
+  plays[key] = todayString();
   writeJSON(PLAYS_FILE, plays);
+
   res.json({ ok:true });
 });
 
-// claim a coupon (called on win). This will also mark the device as played today.
-// claim a coupon (called on win). This will also mark the device as played today.
-app.post('/claim-coupon', (req,res) => {
-  const { deviceId, score } = req.body;
-  if(!deviceId) return res.status(400).json({ ok:false, error:'deviceId_required' });
-  if(typeof score !== "number") return res.status(400).json({ ok:false, error:'score_required' });
+// claim-coupon endpoint
+// claim-coupon endpoint
+app.post('/claim-coupon', (req, res) => {
+  const { deviceId, score, gameId } = req.body;
 
-  const plays = readJSON(PLAYS_FILE, {});
-  if(plays[deviceId] === todayString()) {
-    return res.json({ ok:false, error:'already_played_today' });
+  if (!deviceId || score === undefined || !gameId) {
+    return res.status(400).json({ ok: false, error: "Missing required fields" });
   }
 
   const coupons = readJSON(COUPONS_FILE, []);
+  const plays = readJSON(PLAYS_FILE, {});
+  const key = `${deviceId}`;
 
-  // find a coupon that is unclaimed AND matches score range
-  const idx = coupons.findIndex(c => 
-    !c.claimed &&
-    (c.minScore === undefined || score >= c.minScore) &&
-    (c.maxScore === undefined || score <= c.maxScore)
-  );
-
-  if(idx === -1) return res.json({ ok:false, error:'no_coupon_for_score' });
-
-  // claim
-  coupons[idx].claimed = true;
-  coupons[idx].claimedBy = deviceId;
-  coupons[idx].claimedAt = (new Date()).toISOString();
-  coupons[idx].scoreWhenClaimed = score;
-
-  plays[deviceId] = todayString();
-
-  writeJSON(COUPONS_FILE, coupons);
+  // mark that the user has played today
+  plays[key] = todayString();
   writeJSON(PLAYS_FILE, plays);
 
-  res.json({ ok:true, coupon: coupons[idx].code });
-});
+  // find first available coupon for this game and score range
+  const coupon = coupons.find(c =>
+    c.gameId === gameId &&
+    !c.claimed &&
+    score >= c.minScore &&
+    score <= c.maxScore
+  );
 
+  if (!coupon) {
+    return res.json({ ok: false, error: "No coupon available for this score." });
+  }
+
+  // mark as claimed
+  coupon.claimed = true;
+  coupon.claimedBy = deviceId;
+  coupon.claimedAt = new Date().toISOString();
+  coupon.scoreWhenClaimed = score;
+
+  writeJSON(COUPONS_FILE, coupons);
+
+  res.json({ ok: true, coupon: coupon.code });
+});
 
 // verify coupon (used by cafe/restaurant)
 app.get('/redeem/verify-coupon', (req,res) => {
@@ -93,7 +103,7 @@ app.get('/redeem/verify-coupon', (req,res) => {
 
 // redeem coupon (crew side)
 app.post('/redeem/redeem-coupon', (req,res) => {
-    const { code, crewName } = req.body;
+  const { code, crewName } = req.body;
   if(!code) return res.json({ ok:false, message:'Code required' });
 
   const coupons = readJSON(COUPONS_FILE, []);
@@ -113,5 +123,37 @@ app.post('/redeem/redeem-coupon', (req,res) => {
 
   res.json({ ok:true, message:'Redeemed successfully!' });
 });
+// admin stats endpoint
+app.get('/admin/stats', (req,res) => {
+  const coupons = readJSON(COUPONS_FILE, []);
+  const plays = readJSON(PLAYS_FILE, {});
+
+  const totalDevices = Object.keys(plays).length;
+  const totalCoupons = coupons.length;
+  const claimed = coupons.filter(c => c.claimed).length;
+  const redeemed = coupons.filter(c => c.redeemed).length;
+
+  // breakdown by game
+  const games = {};
+  coupons.forEach(c => {
+    if(!games[c.gameId]) {
+      games[c.gameId] = { total:0, claimed:0, redeemed:0 };
+    }
+    games[c.gameId].total++;
+    if(c.claimed) games[c.gameId].claimed++;
+    if(c.redeemed) games[c.gameId].redeemed++;
+  });
+
+  res.json({
+    devices: totalDevices,
+    coupons: {
+      total: totalCoupons,
+      claimed,
+      redeemed
+    },
+    byGame: games
+  });
+});
+
 
 app.listen(PORT, ()=> console.log('Server running on port', PORT));

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Memory Flip</title>
+  <link rel="stylesheet" href="../game3Style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="stats">الادوار المتبقية : <span id="turns">25</span> <br/> سكورك : <span id="score">0</span></div>
+  <div id="grid"></div>
+  <div id="overlay"></div>
+
+  <script type="module">
+    import { canPlay, claimCoupon } from '../api.js';
+
+    const SERVER_BASE = '';
+    let deviceId = localStorage.getItem('deviceId');
+    if (!deviceId) {
+      deviceId = crypto.randomUUID();
+      localStorage.setItem('deviceId', deviceId);
+    }
+
+    async function recordPlay(){
+      await fetch(`${SERVER_BASE}/record-play`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ deviceId })
+      });
+    }
+
+    const gridEl = document.getElementById('grid');
+    const turnsEl = document.getElementById('turns');
+    const scoreEl = document.getElementById('score');
+    const overlay = document.getElementById('overlay');
+
+    let firstCard = null;
+    let lock = false;
+    let turns = 25;
+    let score = 0;
+    let alreadyPlayedToday = false;
+
+    // Initial boot
+    (async ()=> {
+      const can = await canPlay();
+      if(!can.canPlay){
+        alreadyPlayedToday = true; // mark, but don’t block the game
+      }
+      initGame(); // always start game
+    })();
+
+    function initGame(){
+      // pick 18 icons (emojis for demo)
+      const icons = ['🍎','🍌','🍒','🍓','🍇','🍉','🍑','🍍',
+                     '🥝','🥕','🥦','🍔','🍟','🍕','🍩','🍪',
+                     '⚽','🏀'];
+      const deck = [...icons, ...icons]; // 18 pairs = 36 cards
+      shuffle(deck);
+
+      // build grid
+      deck.forEach(icon => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="inner">
+            <div class="front"></div>
+            <div class="back">${icon}</div>
+          </div>`;
+        card.dataset.icon = icon;
+        gridEl.appendChild(card);
+
+        card.addEventListener('click', () => handleClick(card));
+      });
+    }
+
+    function handleClick(card){
+      if(lock || card.classList.contains('flipped') || turns<=0) return;
+      card.classList.add('flipped');
+
+      if(!firstCard){
+        firstCard = card;
+      } else {
+        lock = true;
+        const secondCard = card;
+        turns--;
+        turnsEl.textContent = turns;
+        if(firstCard.dataset.icon === secondCard.dataset.icon){
+          // match
+          score++;
+          scoreEl.textContent = score;
+          firstCard.classList.add('matched');
+          secondCard.classList.add('matched');
+          resetPair();
+        } else {
+          // not match
+          setTimeout(()=>{
+            firstCard.classList.remove('flipped');
+            secondCard.classList.remove('flipped');
+            resetPair();
+          }, 1000);
+        }
+      }
+    }
+
+    function resetPair(){
+      firstCard = null;
+      lock = false;
+      if(turns === 0){
+        endGame();
+      }
+    }
+
+    function endGame(){
+      if (alreadyPlayedToday) {
+        showOverlay("❌ You already played today, no coupon this time.");
+        return;
+      }
+
+      claimCoupon(score, "memoryFlip").then(j => {
+        if(j.ok && j.coupon){
+          showOverlay(`🎉 You won coupon: <b>${j.coupon}</b>`);
+        } else {
+          let msg;
+          switch (j.error) {
+            case "no_coupon_for_score":
+              msg = "No coupon available for your score range.";
+              break;
+            case "already_played_today":
+              msg = "You already played today, no coupon this time.";
+              break;
+            default:
+              msg = j.error || "No coupon could be claimed.";
+          }
+          showOverlay(`❌ ${msg}`);
+        }
+      });
+    }
+
+    function showOverlay(html){
+      overlay.innerHTML = `<div>${html}</div><div><button onclick="location.reload()">Play Again</button></div>`;
+      overlay.style.visibility = 'visible';
+    }
+
+    function shuffle(arr){
+      for(let i=arr.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+      }
+    }
+  </script>
+</body>
+</html>

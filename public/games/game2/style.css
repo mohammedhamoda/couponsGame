@@ -1,0 +1,61 @@
+    body { 
+        font-family: 'Handjet', sans-serif; 
+        background:#334443; 
+        color:white; 
+        text-align:center; 
+        margin:0; 
+        padding:20px; 
+    }
+    h1 { 
+        margin: 10px 0; 
+    }
+    #scoreBox { 
+        background-color: rgb(2, 150, 81);
+        margin: 0;
+        padding: 17px;
+        width: fit-content;
+        border-radius: 10px;
+        filter: drop-shadow(0px 8px 0px rgb(2, 124, 77));
+        color: #eeeeee;
+        margin-top: 20px;
+        font-weight: 600;
+        font-size: 30px;
+    }
+    .screen { 
+        display:none; 
+    }
+    .active { 
+        display:block; 
+    }
+    button { 
+        margin:8px; 
+        padding:10px 20px; 
+        border:none; 
+        border-radius:8px; 
+        cursor:pointer; 
+        font-size:18px; 
+        width: 20%;
+    }
+    .option { 
+        display:block; 
+        margin:6px auto; 
+        background:#34656D; 
+        color:white; 
+        width: 40%;
+        font-family: 'Handjet', sans-serif; 
+    }
+    
+    .option.correct { 
+        background: rgb(2, 150, 81)!important; 
+    }
+    .option.wrong { 
+        background:#dc3545 !important; 
+    }
+    #questionBox{
+        font-size: 40px;
+        font-weight: 400;
+        margin-bottom: 20px;
+        background-color: #4FB7B3;
+        border-radius: 10px;
+        padding: 20px;        
+    }
