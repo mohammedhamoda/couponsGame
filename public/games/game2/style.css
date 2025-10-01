@@ -43,6 +43,7 @@
         color:white; 
         width: 40%;
         font-family: 'Handjet', sans-serif; 
+        font-size: 23px;
     }
     
     .option.correct { 

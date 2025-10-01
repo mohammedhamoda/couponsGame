@@ -1,29 +1,422 @@
 [
   {
-    "code": "DISC10",
-    "gameId": "memoryFlip",
-    "minScore": 0,
-    "maxScore": 9,
-    "claimed": true,
-    "claimedBy": "bb96d20c-0fff-4c5c-8619-8789ceb1cc7e",
-    "claimedAt": "2025-09-27T23:54:09.628Z",
-    "scoreWhenClaimed": 6
+    "code": "SAY20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
   },
   {
-    "code": "SALE20",
-    "gameId": "memoryFlip",
-    "minScore": 10,
-    "maxScore": 14,
-    "claimed": true,
-    "claimedBy": "bb96d20c-0fff-4c5c-8619-8789ceb1cc7e",
-    "claimedAt": "2025-09-27T23:49:54.813Z",
-    "scoreWhenClaimed": 13
+    "code": "MAW20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
   },
   {
-    "code": "VIP100",
+    "code": "RAM20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "MAR20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "AAL20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "JJS20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "SLA20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "KOR20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "AKR20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "CAR20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "ARC20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "COR20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "ROC20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "KRM20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "MKR20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "SKR20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "RZO20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "ROZ20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "ZER20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "MAN20",
+    "gameId": "quizGame",
+    "minScore": 5,
+    "maxScore": 10,
+    "claimed": false
+  },
+  {
+    "code": "TBS20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "ROG20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "GOR20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "RGO20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "AZO20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "OZO20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "OOZ20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "NOR20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "NUR20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "MIS20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "GOS20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "VMZ20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "MND20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "MLN20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "MSI20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "ISM20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "COA20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "ZRO20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "JIJ20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "MMA20",
+    "gameId": "memoryFlip",
+    "minScore": 5,
+    "maxScore": 36,
+    "claimed": false
+  },
+  {
+    "code": "FOR20",
     "gameId": "fallingItems",
-    "minScore": 20,
-    "maxScore": 50,
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "FRE20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "RIZ20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "ZIR20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "MIK20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "CAM20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "MCA20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "SSO20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "ZZR20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "RLL20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "KOD20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "SLS20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "SMA20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "MID20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "MOQ20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "MQQ20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "MRI20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "MLA20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "SOA20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
+    "claimed": false
+  },
+  {
+    "code": "CNO20",
+    "gameId": "fallingItems",
+    "minScore": 33,
+    "maxScore": 1000,
     "claimed": false
   }
 ]

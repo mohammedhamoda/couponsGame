@@ -1,0 +1,28 @@
+body{
+    margin: 0;
+    background-color: #334443;
+    font-family: "Handjet", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
+.cont{
+
+}
+#code{
+    border: none;
+    padding: 10px;
+
+}
+.redeem{
+    border: none;
+    padding: 10px;
+    background-color: rgb(2, 150, 81);
+    cursor: pointer;
+    color: aliceblue;
+    
+}
+.info{
+    color: #D8C0A6 ;
+    margin: 10px;
+    font-size: 40px;
+}

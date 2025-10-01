@@ -129,6 +129,29 @@ nav ._nav a {
     border-radius: 10px;
     margin: 10px;
 }
+.info{
+    text-align: center;
+    color: #D8C0A6 ;
+}
+#head1{
+    font-size: 60px;
+    color: #b870a6;
+}
+#par1{
+    font-size: 40px;
+    color: #D8C0A6;
+}
+#code{
+    border: none;
+    padding: 10px;
+}
+.redeem{
+    border: none;
+    padding: 10px;
+    background-color: rgb(2, 150, 81);
+    cursor: pointer;
+    color: aliceblue;
+}
 @media (max-width: 768px) {
     .row {
         flex-direction: column;

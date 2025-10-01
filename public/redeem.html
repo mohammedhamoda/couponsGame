@@ -2,15 +2,22 @@
 <html>
 <head>
   <title>Coupon Verification</title>
-<link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="redeem.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@100..900&display=swap" rel="stylesheet">
+  
 </head>
 <body>
 <center>
-  <h2>Coupon Redeem</h2>
+<div class="cont">
+  <h2 class="info">Coupon Redeem</h2>
   <input type="text" id="code" placeholder="Enter coupon code">
-  <button onclick="verify()">Verify</button>
-  <button onclick="redeem()">Redeem</button>
+  <button class="redeem" onclick="verify()">Verify</button>
+  <button class="redeem" onclick="redeem()">Redeem</button>
   <div id="result"></div>
+</div>
 </center>
   <script>
     async function verify(){
