@@ -310,49 +310,52 @@
   {
     "code": "MIK20",
     "gameId": "fallingItems",
-    "minScore": 33,
+    "minScore": 10,
     "maxScore": 1000,
     "claimed": false
   },
   {
     "code": "CAM20",
     "gameId": "fallingItems",
-    "minScore": 33,
+    "minScore": 10,
     "maxScore": 1000,
-    "claimed": false
+    "claimed": true,
+    "claimedBy": "bb96d20c-0fff-4c5c-8619-8789ceb1cc7e",
+    "claimedAt": "2025-10-08T14:06:46.122Z",
+    "scoreWhenClaimed": 12
   },
   {
     "code": "MCA20",
     "gameId": "fallingItems",
-    "minScore": 33,
+    "minScore": 10,
     "maxScore": 1000,
     "claimed": false
   },
   {
     "code": "SSO20",
     "gameId": "fallingItems",
-    "minScore": 33,
+    "minScore": 10,
     "maxScore": 1000,
     "claimed": false
   },
   {
     "code": "ZZR20",
     "gameId": "fallingItems",
-    "minScore": 33,
+    "minScore": 10,
     "maxScore": 1000,
     "claimed": false
   },
   {
     "code": "RLL20",
     "gameId": "fallingItems",
-    "minScore": 33,
+    "minScore": 10,
     "maxScore": 1000,
     "claimed": false
   },
   {
     "code": "KOD20",
     "gameId": "fallingItems",
-    "minScore": 33,
+    "minScore": 10,
     "maxScore": 1000,
     "claimed": false
   },
@@ -380,42 +383,42 @@
   {
     "code": "MOQ20",
     "gameId": "fallingItems",
-    "minScore": 33,
+    "minScore": 10,
     "maxScore": 1000,
     "claimed": false
   },
   {
     "code": "MQQ20",
     "gameId": "fallingItems",
-    "minScore": 33,
+    "minScore": 10,
     "maxScore": 1000,
     "claimed": false
   },
   {
     "code": "MRI20",
     "gameId": "fallingItems",
-    "minScore": 33,
+    "minScore": 10,
     "maxScore": 1000,
     "claimed": false
   },
   {
     "code": "MLA20",
     "gameId": "fallingItems",
-    "minScore": 33,
+    "minScore": 10,
     "maxScore": 1000,
     "claimed": false
   },
   {
     "code": "SOA20",
     "gameId": "fallingItems",
-    "minScore": 33,
+    "minScore": 10,
     "maxScore": 1000,
     "claimed": false
   },
   {
     "code": "CNO20",
     "gameId": "fallingItems",
-    "minScore": 33,
+    "minScore": 10,
     "maxScore": 1000,
     "claimed": false
   }
